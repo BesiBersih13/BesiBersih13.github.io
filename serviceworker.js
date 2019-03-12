@@ -4,7 +4,7 @@ var urlToCache = [
     '/',
     '/css/main.css',
     '/js/jquery.min.js',
-    '/js/main.js'
+    '/js/main.js',
 ];
 
 
