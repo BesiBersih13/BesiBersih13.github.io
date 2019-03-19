@@ -22,6 +22,7 @@ self.addEventListener('install', function (event) {
             }
         )
     )
+    self.skipWaiting();
 });
 
 // aktivasi sw
@@ -38,6 +39,9 @@ self.addEventListener('activate', function (event) {
             );
         })
     );
+    if(self.clients && clients.claim){
+        clients.claim()
+    }
 });
 
 // fetch cache
@@ -99,8 +103,21 @@ self.addEventListener('notificationclick', function (n) {
    }
 });
 
-self.addEventListener('sync', function(event) {
-    if (event.tag === 'myFirstSync') {
-        event.waitUntil();
+
+self.addEventListener('sync',(event)=>{
+    console.log('firing sync');
+    if (event.tag === 'image-fetch'){
+        console.log('sync event fired');
+        event.waitUntil(fetchImage());
     }
-});
+})
+function fetchImage(){
+    console.log('firing fetchImage()');
+    fetch('/image/images.png').then((response)=>{
+        return response;
+    }).then((text)=>{
+        console.log('Request success',text);
+    }).catch((err)=>{
+        console.log('Request error',err);
+    })
+}

@@ -45,14 +45,93 @@ $(document).ready(function(){
     
 });
 
+// notification
+Notification.requestPermission(function (status) {
+    console.log('Notif permision status', status);
+});
+
+function displayNotification(title, msg, url, img) {
+    if (Notification.permission === 'granted') {
+        navigator.serviceWorker.getRegistration()
+            .then(function (reg) {
+                var options = {
+                    body: msg,
+                    icon: img,
+                    vibrate: [100, 50, 100],
+                    data: {
+                        dateOfArrival: Date.now(),
+                        primaryKey: 1,
+                        url : url
+                    },
+
+                    actions: [
+                        {
+                            action: 'explore', title: 'Kunjungi Situs',
+                            icon: 'images/centang.png'
+                        },
+                        {
+                            action: 'close', title: 'Close Notification',
+                            icon: 'images/times.png'
+                        }
+                    ]
+                };
+                reg.showNotification(title, options)
+            })
+    }
+}
+
+$("#show-notification").on('click', function () {
+    console.log('click button');
+    displayNotification("Lorem Ipsum","Sit Dolor Amet",'https://google.com/','images/ugm.png');
+});
+
+function isOnline(){
+    var connectionStatus = $
+}
+
 if('serviceWorker'in navigator){
     window.addEventListener('load',function(){
         navigator.serviceWorker.register('/serviceworker.js').then(
             function(reg){
-                console.log('SW registration success, scope :',reg.scope);
+                document.getElementById('load-in-bg')
+                    .addEventListener(('click',()=>{
+                        reg.sync.register('image-fetch')
+                            .then(()=>{
+                                console.log('sync-registered');
+                            }).catch((err)=>{
+                                console.log('unable to fetch image. err: ',err);
+                            })
+                    }))
             }, function (err){
-                console.log('SW registration error, scope :',err)
+                console.log('SW registration failed :',err);
             }
         )
     })
+}
+
+/**
+ * IndexedDB
+ */
+createDataBase();
+
+function createDataBase(){
+    if(!('indexedDB' in window)){
+        console.log('Web Browser tidak mendukung Indexed DB');
+        return;
+    }
+    var request = window.indexedDB.open('belajar-pwa',1);
+    request.onerror = errorHandle;
+    request.onupgradeneeded = (e)=>{
+        var db = e.target.result;
+        db.onerror = errorHandle;
+        var objectStore = db.createObjectStore('mahasiswa',{keyPath : 'nim'});
+        console.log('Object Sore mahasiswa berhasil dibuat');
+    }
+    request.onsuccess = (e)=>{
+        db = e.target.result;
+    }
+}
+
+function errorHandle(e){
+    console.log('Error DB : '+e.target.errorCode);
 }
